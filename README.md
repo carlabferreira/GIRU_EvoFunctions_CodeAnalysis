@@ -14,6 +14,7 @@ O sistema tem como objetivo analisar códigos de repositórios do GitHub e exibi
 
 ## Explicação das possíveis tecnologias usadas
 Para o desenvolvimento do projeto utilizaremos as seguintes ferramentas:
-- Python ast: Python parsing library (https://docs.python.org/3/library/ast.html) - como ferramenta para ánalise das partes do código e obtenção de informações relevantes para análise
+- Python ast: Python parsing library (https://docs.python.org/3/library/ast.html) - como ferramenta para análise das partes do código e obtenção de informações relevantes para análise
      - Por ser um módulo que ajuda o Python a processar a gramática das árvores de sintaxe abstratas da linguagem, ele é útil para entender o desenvolvimento e as conexões existentes dentro do código.
 - PyGithub: Typed interactions with the GitHub API (https://github.com/PyGithub/PyGithub) - como forma de interação principal com a API do GitHub
+     - Essa ferramenta permite o acesso ao código-fonte do projeto no GitHub, possibilitando a análise de repositórios, issues, commits, pull requests, etc.
