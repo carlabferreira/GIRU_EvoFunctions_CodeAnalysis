@@ -1,7 +1,9 @@
-# SE_CodeAnalysis
+# GIRU - EvoFunctions Code Analysis
 Trabalho Prático da disciplina Engenharia de Software II (DCC072) em 2025/2 na UFMG
 
-Enunciado base: Desenvolver uma ferramenta de linha de comando que identifique problemas de manutenção de software por meio da mineração de repositórios. Mais informações: https://github.com/andrehora/software-repo-mining/blob/main/README.md
+Enunciado base: Desenvolver uma ferramenta de linha de comando que identifique problemas de manutenção de software por meio da mineração de repositórios. 
+
+Mais informações: https://github.com/andrehora/software-repo-mining/blob/main/README.md e https://github.com/andrehora/tp-software-repo-mining
 
 ## Membros do grupo:
 1. Carla Beatriz Ferreira
@@ -18,3 +20,7 @@ Para o desenvolvimento do projeto utilizaremos as seguintes ferramentas:
      - Por ser um módulo que ajuda o Python a processar a gramática das árvores de sintaxe abstratas da linguagem, ele é útil para entender o desenvolvimento e as conexões existentes dentro do código.
 - PyGithub: Typed interactions with the GitHub API (https://github.com/PyGithub/PyGithub) - como forma de interação principal com a API do GitHub
      - Essa ferramenta permite o acesso ao código-fonte do projeto no GitHub, possibilitando a análise de repositórios, issues, commits, pull requests, etc.
+ 
+## Sobre o GIRU
+GIRU é a combinação das letras dos 4 integrantes que atuam no desenvolvimento desta e de outras ferramentas, formado durante suas graduações na Universidade Federal de Minas Gerais.
+
