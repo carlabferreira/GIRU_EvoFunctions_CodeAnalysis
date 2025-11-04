@@ -10,6 +10,19 @@ def display_limits(g):
     print(f"You now have {core.remaining}/{core.limit} requests remaining.")
     print(f"Your next limit reset will happen at {core.reset}")
 
+def filterForPythonFiles(repo, commits):
+    python_files = []
+
+    for commit in commits:
+        current_commit_python_files = []
+        tree = repo.get_git_tree(commit.sha, recursive=True).tree
+        for item in tree:
+            if item.path.endswith(".py"):
+                current_commit_python_files.append((item.path, repo.get_contents(item.path).decoded_content.decode("utf-8")))
+        python_files.append(current_commit_python_files)
+
+    return python_files
+
 
 def main():
     token = input("Type in a personal access token\nIf left blank, github API limits to 60 requests per hour\nIf a token is given, your limit will be 5000 requests per hour\n")
@@ -34,18 +47,11 @@ def main():
         print("erro repositorio invalido")
 
     commits = repo.get_commits()
-    python_files = []
 
     #Função de filtro uau
     commits = commits[:10]
 
-    for commit in commits:
-        current_commit_python_files = []
-        tree = repo.get_git_tree(commit.sha, recursive=True).tree
-        for item in tree:
-            if item.path.endswith(".py"):
-                current_commit_python_files.append((item.path, repo.get_contents(item.path).decoded_content.decode("utf-8")))
-        python_files.append(current_commit_python_files)
+    python_files = filterForPythonFiles(repo=repo, commits=commits)
 
     for commit in python_files:
         for file in commit:
