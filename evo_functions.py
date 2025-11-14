@@ -6,8 +6,21 @@ from enum import Enum
 import statistics
 import matplotlib.pyplot as plt
 import numpy as np
+import argparse
 
-class option(Enum):
+
+def setup():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-t", "--token", help="OAuth token from GitHub", required=False)
+    parser.add_argument("-r", "--repo", help="Repository to be analyzed", required=True)
+    parser.add_argument("-a", "--file", help="File in the given repository", required=True)
+    parser.add_argument("-f", "--function", help="Function to be analyzed", required=True)
+    parser.add_argument("-o", "--option", help="Analysis option", choices=[0, 1], type=int, required=True)
+    parser.add_argument("-l", "--limits", action="store_true", help="Display remaining API request limits", required=False)
+    args = parser.parse_args()
+    return args
+
+class Option(Enum):
     SAME_FUNCTION_PREVIOUS_VERSIONS = 0 # Compara uma função específica com ela mesma em outras versões, ao longo do tempo
     OTHER_FUNCTIONS_SAME_VERSION = 1 # Compara função específica com outras no mesmo ambiente
 
@@ -101,8 +114,9 @@ def filterForPythonFiles(repo, commits):
 
 
 def main():
-    token = input("Type in a personal access token\nIf left blank, github API limits to 60 requests per hour\nIf a token is given, your limit will be 5000 requests per hour\n")
+    args = setup()
 
+    token = args.token
     ############################## Tratar erro de colocar token invalido ##############################
     try:
         if not token:
@@ -116,7 +130,7 @@ def main():
 
 
     ############################## Tratar erro de colocar repositorio invalido ##############################
-    r = input("\nType in the link to the repository you want to look at\nFormat should be: <USER/REPO-NAME>\n")
+    r = args.repo
     try:
         repo = g.get_repo(r)
     except:
@@ -135,7 +149,9 @@ def main():
             # pp(ast_tree.__dict__)
 
     ############################## Tratar erro de colocar função/método inválido ##############################
-    f = input("\nType in the name of the function to be analyzed\nNote: It must be present in the current version\n")
+    f = args.function
+    opt = Option(args.option)
+
     try:
         filtered_function = find_user_function(ast_tree=ast_tree, user_function=f)
         if filtered_function:
@@ -146,13 +162,15 @@ def main():
     except:
         print("Erro: Nome de função inválido")
 
-    if (option.OTHER_FUNCTIONS_SAME_VERSION):
+    if (opt == Option.OTHER_FUNCTIONS_SAME_VERSION):
         function_nodes = [node for node in ast.walk(ast_tree) if isinstance(node, ast.FunctionDef)]
         print(f"\nAverage lines of code for functions in the current version: {statistics.mean([func.end_lineno - func.lineno + 1 for func in function_nodes]):.2f}")
         print(f"Lines of code for function '{f}': {(filtered_function.end_lineno - filtered_function.lineno + 1):.2f} \n")
         print_distribution_loc_functions(function_nodes)
+    else:
+        print("Option not implemented yet.") #todo
 
-    if "-l" in sys.argv:
+    if args.limits:
         display_limits(g)
 
 
