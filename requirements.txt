@@ -1,2 +1,5 @@
 pytest
 PyGithub
+statistics
+matplotlib
+numpy

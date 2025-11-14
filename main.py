@@ -3,10 +3,74 @@ import sys
 import ast
 from pprint import pp
 from enum import Enum
+import statistics
+import matplotlib.pyplot as plt
+import numpy as np
 
 class option(Enum):
     SAME_FUNCTION_PREVIOUS_VERSIONS = 0 # Compara uma função específica com ela mesma em outras versões, ao longo do tempo
     OTHER_FUNCTIONS_SAME_VERSION = 1 # Compara função específica com outras no mesmo ambiente
+
+def print_distribution_loc_functions(function_nodes):
+    loc_distribution = {}
+    all_locs = []
+    for func in function_nodes:
+        loc = func.end_lineno - func.lineno + 1
+        all_locs.append(loc)
+        if loc in loc_distribution:
+            loc_distribution[loc] += 1
+        else:
+            loc_distribution[loc] = 1
+    print("Distribution of lines of code in functions:")
+    for loc, count in sorted(loc_distribution.items()):
+        print(f"{loc} lines: {count} function(s)")
+
+    plt.barh(list(loc_distribution.keys()), list(loc_distribution.values()), height=2)
+
+    avg_loc = statistics.mean(all_locs)
+    outlier = 2 * avg_loc # Para evitar que outliers distorçam o gráfico
+    visual_limit = np.ceil(outlier).astype(int)
+
+    plt.figure(figsize=(10, 8))
+    
+    counts = list(loc_distribution.values())
+    locs = list(loc_distribution.keys())
+    
+    plt.barh(locs, counts, height=2, color='#1f77b4') 
+
+    # Ajuste para Ticks Inteiros no Eixo X
+    max_count = max(counts) if counts else 0
+    plt.xticks(np.arange(0, max_count + 1, 1)) 
+
+    plt.axhline(y=avg_loc, color='r', linestyle='--', label=f'Average LOC ({avg_loc:.2f})')
+    plt.axhline(y=outlier, color='g', linestyle='-.', label=f'Outlier Limit({outlier:.2f})')
+
+    plt.ylim(0, visual_limit) 
+
+    plt.ylabel('Lines of Code (LOC)')
+    plt.xlabel('Number of Functions')
+    plt.title('Distribution of Lines of Code')
+    
+    outliers = [(loc, count) for loc, count in loc_distribution.items() if loc > outlier]
+    outlier_info = "Excluded Outliers:\n"
+    if outliers:
+        for loc, count in outliers:
+            outlier_info += f"- {count} function(s) with {loc} LOC\n"
+        
+        plt.text(
+            max_count * 0.7, 
+            visual_limit * 0.8, 
+            outlier_info.strip(),
+            color='red',
+            fontsize=10,
+            bbox=dict(facecolor='white', alpha=0.7, edgecolor='red')
+        )
+    
+    plt.legend()
+    plt.grid(axis='x', linestyle='--', alpha=0.7)
+    plt.tight_layout()
+    plt.savefig('loc_distribution.png')
+    plt.close()
 
 def find_user_function(ast_tree, user_function):
     for node in ast.walk(ast_tree):
@@ -81,6 +145,12 @@ def main():
             raise ValueError("Função informada não foi encontrada no arquivo do commit")  
     except:
         print("Erro: Nome de função inválido")
+
+    if (option.OTHER_FUNCTIONS_SAME_VERSION):
+        function_nodes = [node for node in ast.walk(ast_tree) if isinstance(node, ast.FunctionDef)]
+        print(f"\nAverage lines of code for functions in the current version: {statistics.mean([func.end_lineno - func.lineno + 1 for func in function_nodes]):.2f}")
+        print(f"Lines of code for function '{f}': {(filtered_function.end_lineno - filtered_function.lineno + 1):.2f} \n")
+        print_distribution_loc_functions(function_nodes)
 
     if "-l" in sys.argv:
         display_limits(g)
