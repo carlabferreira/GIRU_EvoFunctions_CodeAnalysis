@@ -92,6 +92,39 @@ def find_user_function(ast_tree, user_function):
                 return node 
     return None
 
+def compare_function_with_previous_versions(repo, file_path, function_name, commits):
+    function_sizes = []
+    for commit in commits:
+        try:
+            file_content = repo.get_contents(file_path, ref=commit.sha).decoded_content.decode("utf-8")
+            ast_tree = ast.parse(file_content)
+            function_node = find_user_function(ast_tree, function_name)
+            if function_node:
+                loc = function_node.end_lineno - function_node.lineno + 1
+                function_sizes.append((commit.sha, loc))
+        except:
+            continue
+    return function_sizes
+
+def plot_function_evolution(function_sizes, function_name):
+    if not function_sizes:
+        print("No data to plot.")
+        return
+
+    shas, sizes = zip(*function_sizes)
+    shas_short = [sha[:7] for sha in shas]
+    plt.figure(figsize=(10, 6))
+    plt.plot(shas_short, sizes, marker='o')
+    #plt.plot(range(1, len(sizes) + 1), sizes, marker='o') # versão do gráfico com números ao invés de SHAs
+    plt.yticks(range(min(sizes), max(sizes) + 1))
+    plt.xlabel('Commit Version (Newest to Oldest)')
+    plt.ylabel('Lines of Code (LOC)')
+    plt.title(f'Evolution of Function "{function_name}" Size Over Versions')
+    plt.grid(True)
+    plt.tight_layout()
+    plt.savefig(f'{function_name}_evolution.png')
+    plt.close()
+
 #Função para olhar os limites de requests que restam da API; é chamada no final do programa se ele for executado com a opção "-l"
 def display_limits(g):
     rate_limit = g.get_rate_limit()
@@ -167,6 +200,13 @@ def main():
         print(f"\nAverage lines of code for functions in the current version: {statistics.mean([func.end_lineno - func.lineno + 1 for func in function_nodes]):.2f}")
         print(f"Lines of code for function '{f}': {(filtered_function.end_lineno - filtered_function.lineno + 1):.2f} \n")
         print_distribution_loc_functions(function_nodes)
+    elif (opt == Option.SAME_FUNCTION_PREVIOUS_VERSIONS):
+        function_sizes = compare_function_with_previous_versions(repo, args.file, f, commits)
+        print(f"\nAverage lines of code for function '{f}' over previous versions: {statistics.mean([size for sha, size in function_sizes]):.2f}")
+        print(f"\nFunction sizes over previous versions for function '{f}':")
+        for sha, size in function_sizes:
+            print(f"Commit {sha[:7]}: {size} LOC")
+        plot_function_evolution(function_sizes, f)
     else:
         print("Option not implemented yet.") #todo
 
