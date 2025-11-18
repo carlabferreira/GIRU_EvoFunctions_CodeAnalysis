@@ -5,7 +5,7 @@ Enunciado base: Desenvolver uma ferramenta de linha de comando que identifique p
 
 Mais informações: https://github.com/andrehora/software-repo-mining/blob/main/README.md e https://github.com/andrehora/tp-software-repo-mining
 
-Informalções apresentadas:
+Informações apresentadas:
 1. [Membros da Equipe](#membros-do-grupo)
 2. [Sobre o GIRU](#sobre-o-giru)
 3. [Explicação do sistema](#explicação-do-sistema)
