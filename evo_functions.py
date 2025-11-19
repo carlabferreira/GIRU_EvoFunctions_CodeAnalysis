@@ -1,8 +1,10 @@
 from github import Github, Auth
+from jinja2 import Environment, FileSystemLoader
 import sys
 import ast
 from pprint import pp
 from enum import Enum
+from datetime import datetime
 import statistics
 import matplotlib.pyplot as plt
 import numpy as np
@@ -17,6 +19,7 @@ def setup():
     parser.add_argument("-f", "--function", help="Function to be analyzed", required=True)
     parser.add_argument("-o", "--option", help="Analysis option", choices=[0, 1], type=int, required=True)
     parser.add_argument("-l", "--limits", action="store_true", help="Display remaining API request limits", required=False)
+    parser.add_argument("-w", "--report", help="Generates a report file with given name", required=False)
     args = parser.parse_args()
     return args
 
@@ -99,7 +102,7 @@ def display_limits(g):
     print(f"You now have {core.remaining}/{core.limit} requests remaining.")
     print(f"Your next limit reset will happen at {core.reset}")
 
-def filterForPythonFiles(repo, commits):
+def filter_for_python_files(repo, commits):
     python_files = []
 
     for commit in commits:
@@ -112,6 +115,37 @@ def filterForPythonFiles(repo, commits):
 
     return python_files
 
+def generate_report(option, function_nodes, filtered_function, analyzed_file, file_name, image_path):
+    if option == 0:
+        pass
+
+    if option == 1:
+        env = Environment(loader=FileSystemLoader("templates"))
+        template = env.get_template("template_opt0.html")
+
+        avg = statistics.mean([func.end_lineno - func.lineno + 1 for func in function_nodes])
+        qtty = len(function_nodes)
+        filtered_function_loc = (filtered_function.end_lineno - filtered_function.lineno + 1)
+
+        loc_per_function = {}
+
+        for func in function_nodes:
+            loc_per_function[func.name] = func.end_lineno - func.lineno + 1
+
+        loc_per_function = dict(sorted(loc_per_function.items(), key=lambda item: item[1]))
+
+        html = template.render(
+            analyzed_file = analyzed_file,
+            time=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            analyzed_function=filtered_function.name,
+            analyzed_loc=filtered_function_loc,
+            avg_loc=avg,
+            total_functions=qtty,
+            data=loc_per_function,
+            chart_path=image_path,
+        )
+        with open(file_name, "w", encoding="utf-8") as f:
+            f.write(html)  
 
 def main():
     args = setup()
@@ -141,7 +175,7 @@ def main():
     #Função de filtro uau
     commits = commits[:10]
 
-    python_files = filterForPythonFiles(repo=repo, commits=commits)
+    python_files = filter_for_python_files(repo=repo, commits=commits)
 
     for commit in python_files:
         for file in commit:
@@ -167,8 +201,15 @@ def main():
         print(f"\nAverage lines of code for functions in the current version: {statistics.mean([func.end_lineno - func.lineno + 1 for func in function_nodes]):.2f}")
         print(f"Lines of code for function '{f}': {(filtered_function.end_lineno - filtered_function.lineno + 1):.2f} \n")
         print_distribution_loc_functions(function_nodes)
+
     else:
         print("Option not implemented yet.") #todo
+
+    if args.report:
+        report_fname = args.report
+        if not report_fname.endswith(".html"):
+            report_fname += ".html"
+        generate_report(args.option, function_nodes, filtered_function, args.file, report_fname, "loc_distribution.png")
 
     if args.limits:
         display_limits(g)
