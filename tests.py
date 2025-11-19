@@ -1,4 +1,4 @@
-from evo_functions import display_limits, filterForPythonFiles
+from evo_functions import display_limits, filter_for_python_files
 
 def test_invalid_token():
     invalid_token = "invalid_token"
