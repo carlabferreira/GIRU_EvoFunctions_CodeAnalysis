@@ -112,12 +112,16 @@ def plot_function_evolution(function_sizes, function_name):
         return
 
     shas, sizes = zip(*function_sizes)
-    shas_short = [sha[:7] for sha in shas]
+
+    versions = [f"v{i+1}" for i in reversed(range(len(sizes)))]
+
+    versions = versions[::-1]
+    sizes = sizes[::-1]
+    
     plt.figure(figsize=(10, 6))
-    plt.plot(shas_short, sizes, marker='o')
-    #plt.plot(range(1, len(sizes) + 1), sizes, marker='o') # versão do gráfico com números ao invés de SHAs
-    plt.yticks(range(min(sizes), max(sizes) + 1))
-    plt.xlabel('Commit Version (Newest to Oldest)')
+    plt.plot(versions, sizes, marker='o')
+
+    plt.xlabel('Commit Versions')
     plt.ylabel('Lines of Code (LOC)')
     plt.title(f'Evolution of Function "{function_name}" Size Over Versions')
     plt.grid(True)
