@@ -232,16 +232,22 @@ def main():
         print("Erro! Repositório inválido")
 
     total_commits = repo.get_commits()
-    commits = total_commits[:10] # O padrão é analisar os últimos 10 commits
 
     #Função de filtro para determinar a quantidade de commits que serão analisados na função compare_function_with_previous_versions
     if args.option == 0:
         try:
-            n_commits = int(input("Enter the number of commits to be analyzed: "))
-            commits = total_commits[:n_commits]
-        except ValueError:
-            print("Error: the input must be an integer. The default number of commits will be used instead.")
+            start_date = input("Enter the start date (inclusive) of commits to be analyzed (format YYYY-MM-DD or ISO): ")
+            end_date = input("Enter the end date (inclusive) of commits to be analyzed (format YYYY-MM-DD or ISO): ")
+            
+            start_date = datetime.fromisoformat(start_date)
+            end_date = datetime.fromisoformat(end_date)
 
+            total_commits = repo.get_commits(since=start_date, until=end_date)
+        except:
+            print("Error: the input must be a string datetime (format YYYY-MM-DD or ISO).")
+            sys.exit(1)
+
+    commits = total_commits[:10] # Por padrão, a análise é feita com base nos últimos 10 commits
     python_files = filter_for_python_files(repo=repo, commits=commits)
 
     for commit in python_files:
