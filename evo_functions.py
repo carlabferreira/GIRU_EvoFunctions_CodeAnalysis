@@ -97,17 +97,19 @@ def find_user_function(ast_tree, user_function):
 
 def compare_function_with_previous_versions(repo, file_path, function_name, commits):
     function_sizes = []
+    function_nodes = [] #AJUDA PRO RELATORIO
     for commit in commits:
         try:
             file_content = repo.get_contents(file_path, ref=commit.sha).decoded_content.decode("utf-8")
             ast_tree = ast.parse(file_content)
             function_node = find_user_function(ast_tree, function_name)
             if function_node:
+                function_nodes.append(function_node) #AJUDA PRO RELATORIO
                 loc = function_node.end_lineno - function_node.lineno + 1
                 function_sizes.append((commit.sha, loc))
         except:
             continue
-    return function_sizes
+    return function_sizes, function_nodes
 
 def plot_function_evolution(function_sizes, function_name):
     if not function_sizes:
@@ -154,11 +156,33 @@ def filter_for_python_files(repo, commits):
 
 def generate_report(option, function_nodes, filtered_function, analyzed_file, file_name, image_path):
     if option == 0:
-        pass
+        env = Environment(loader=FileSystemLoader("templates"))
+        template = env.get_template("template_opt0.html")
+
+        avg = statistics.mean([func.end_lineno - func.lineno + 1 for func in function_nodes])
+        qtty = len(function_nodes)
+
+        loc_per_iteration = []
+
+        for func in function_nodes:
+            loc_per_iteration.append(func.end_lineno - func.lineno + 1)
+
+        html = template.render(
+            time=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            analyzed_function=filtered_function.name,
+            avg_loc=avg,
+            total_functions=qtty,
+            data=loc_per_iteration,
+            chart_path=image_path,
+        )
+
+        with open(file_name, "w", encoding="utf-8") as f:
+            f.write(html) 
+
 
     if option == 1:
         env = Environment(loader=FileSystemLoader("templates"))
-        template = env.get_template("template_opt0.html")
+        template = env.get_template("template_opt1.html")
 
         avg = statistics.mean([func.end_lineno - func.lineno + 1 for func in function_nodes])
         qtty = len(function_nodes)
@@ -246,6 +270,17 @@ def main():
             print(f"Commit {sha[:7]}: {size} LOC")
         plot_function_evolution(function_sizes, f)
 
+        chart_path = "loc_distribution.png"
+    elif (opt == Option.SAME_FUNCTION_PREVIOUS_VERSIONS):
+        function_sizes, function_nodes = compare_function_with_previous_versions(repo, args.file, f, commits)
+        print(f"\nAverage lines of code for function '{f}' over previous versions: {statistics.mean([size for sha, size in function_sizes]):.2f}")
+        print(f"\nFunction sizes over previous versions for function '{f}':")
+        for sha, size in function_sizes:
+            print(f"Commit {sha[:7]}: {size} LOC")
+        plot_function_evolution(function_sizes, f)
+
+        chart_path = f"{filtered_function.name}_evolution.png"
+
     else:
         print("Option not implemented yet.") #todo
 
@@ -253,7 +288,7 @@ def main():
         report_fname = args.report
         if not report_fname.endswith(".html"):
             report_fname += ".html"
-        generate_report(args.option, function_nodes, filtered_function, args.file, report_fname, "loc_distribution.png")
+        generate_report(args.option, function_nodes, filtered_function, args.file, report_fname, chart_path)
 
     if args.limits:
         display_limits(g)
