@@ -220,7 +220,7 @@ def main():
             auth = Auth.Token(token)
             g = Github(auth=auth)
     except:
-        print("erro token invalido")
+        print("Erro! Token inválido")
         sys.exit()
 
 
@@ -229,12 +229,18 @@ def main():
     try:
         repo = g.get_repo(r)
     except:
-        print("erro repositorio invalido")
+        print("Erro! Repositório inválido")
 
-    commits = repo.get_commits()
+    total_commits = repo.get_commits()
+    commits = total_commits[:10] # O padrão é analisar os últimos 10 commits
 
-    #Função de filtro uau
-    commits = commits[:10]
+    #Função de filtro para determinar a quantidade de commits que serão analisados na função compare_function_with_previous_versions
+    if args.option == 0:
+        try:
+            n_commits = int(input("Enter the number of commits to be analyzed: "))
+            commits = total_commits[:n_commits]
+        except ValueError:
+            print("Error: the input must be an integer. The default number of commits will be used instead.")
 
     python_files = filter_for_python_files(repo=repo, commits=commits)
 
