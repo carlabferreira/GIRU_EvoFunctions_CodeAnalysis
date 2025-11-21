@@ -18,24 +18,26 @@
 
 <body>
 
-  <h1>LOC Distribution for Previous Iterations of {{ analyzed_function }}</h1>
+  <h1>LOC Distribution for Current Iteration of {{ analyzed_file }}</h1>
 
   <p><b>Generated:</b> {{ time }}</p>
 
   <h2>Summary</h2>
-  <p>Average LOC for the function: {{ avg_loc }}</p>
-  <p>Total of iterations analyzed: {{ total_functions }}</p>
+  <p>Analyzed Function: {{ analyzed_function}}</p>
+  <p>Total LOC of analyzed function: {{ analyzed_loc }}</p>
+  <p>Average LOC for the file: {{ avg_loc }}</p>
+  <p>Total of functions in the file: {{ total_functions }}</p>
 
-  <h2>LOC For Each Iteration</h2>
+  <h2>LOC For Each Function</h2>
   <table>
     <tr>
-      <th>Iteration</th>
+      <th>Function</th>
       <th>Lines of Code</th>
     </tr>
 
-    {% for loc in data %}
+    {% for func, loc in data.items() %}
     <tr>
-      <td>{{ loop.index0 }}</td>
+      <td>{{ func }}</td>
       <td>{{ loc }}</td>
     </tr>
     {% endfor %}
