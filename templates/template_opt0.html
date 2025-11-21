@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Data Report</title>
+
+  <style>
+    body { font-family: Arial, sans-serif; margin: 30px; }
+    table {
+      border-collapse: collapse; width: 60%;
+    }
+    th, td {
+      border: 1px solid #ccc; padding: 8px; text-align: left;
+    }
+    th { background: #eee; }
+  </style>
+</head>
+
+<body>
+
+  <h1>LOC Distribution for Current Iteration of {{ analyzed_file }}</h1>
+
+  <p><b>Generated:</b> {{ time }}</p>
+
+  <h2>Summary</h2>
+  <p>Analyzed Function: {{ analyzed_function}}</p>
+  <p>Total LOC of analyzed function: {{ analyzed_loc }}</p>
+  <p>Average LOC for the file: {{ avg_loc }}</p>
+  <p>Total of functions in the file: {{ total_functions }}</p>
+
+  <h2>LOC For Each Function</h2>
+  <table>
+    <tr>
+      <th>Function</th>
+      <th>Lines of Code</th>
+    </tr>
+
+    {% for func, loc in data.items() %}
+    <tr>
+      <td>{{ func }}</td>
+      <td>{{ loc }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  <h3>LOC Distribution Chart:</h3>
+  <img src="{{ chart_path }}" style = "width: 500;">
+
+</body>
+</html>
