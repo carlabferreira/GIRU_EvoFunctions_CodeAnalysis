@@ -262,27 +262,22 @@ def main():
         print(f"\nAverage lines of code for functions in the current version: {statistics.mean([func.end_lineno - func.lineno + 1 for func in function_nodes]):.2f}")
         print(f"Lines of code for function '{f}': {(filtered_function.end_lineno - filtered_function.lineno + 1):.2f} \n")
         print_distribution_loc_functions(function_nodes)
-    elif (opt == Option.SAME_FUNCTION_PREVIOUS_VERSIONS):
-        function_sizes = compare_function_with_previous_versions(repo, args.file, f, commits)
-        print(f"\nAverage lines of code for function '{f}' over previous versions: {statistics.mean([size for sha, size in function_sizes]):.2f}")
-        print(f"\nFunction sizes over previous versions for function '{f}':")
-        for sha, size in function_sizes:
-            print(f"Commit {sha[:7]}: {size} LOC")
-        plot_function_evolution(function_sizes, f)
-
         chart_path = "loc_distribution.png"
     elif (opt == Option.SAME_FUNCTION_PREVIOUS_VERSIONS):
         function_sizes, function_nodes = compare_function_with_previous_versions(repo, args.file, f, commits)
-        print(f"\nAverage lines of code for function '{f}' over previous versions: {statistics.mean([size for sha, size in function_sizes]):.2f}")
-        print(f"\nFunction sizes over previous versions for function '{f}':")
-        for sha, size in function_sizes:
-            print(f"Commit {sha[:7]}: {size} LOC")
-        plot_function_evolution(function_sizes, f)
-
-        chart_path = f"{filtered_function.name}_evolution.png"
-
+        if not function_sizes:
+            print("No history found for the given function.")
+            chart_path = None
+        else:
+            print(f"\nAverage lines of code for function '{f}' over previous versions: {statistics.mean([size for sha, size in function_sizes]):.2f}")
+            print(f"\nFunction sizes over previous versions for function '{f}':")
+            for sha, size in function_sizes:
+                print(f"Commit {sha[:7]}: {size} LOC")
+            plot_function_evolution(function_sizes, f)
+            chart_path = f"{filtered_function.name}_evolution.png"
     else:
-        print("Option not implemented yet.") #todo
+        print("Option not implemented yet.")
+
 
     if args.report:
         report_fname = args.report
