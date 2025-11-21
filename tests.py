@@ -1,5 +1,6 @@
 import evo_functions
 import ast
+import os
 
 def test_invalid_token():
     invalid_token = "invalid_token"
@@ -44,3 +45,22 @@ def baz(y, z):
     evo_functions.print_distribution_loc_functions(function_nodes)
     captured = capsys.readouterr()
     assert "2 lines: 3 function(s)" in captured.out
+
+def test_plot_function_evolution():
+    filename = "test_function_evolution.png"
+
+    if os.path.exists(filename):
+        os.remove(filename)
+
+    loc_data = [('cod1', 5), ('cod2', 10), ('cod3', 15), ('cod4', 20)]
+    evo_functions.plot_function_evolution(loc_data, "test_function")
+    assert os.path.exists(filename), "Arquivo não criado"
+    assert os.path.getsize(filename) > 0, "Arquivo vazio"
+
+    os.remove(filename)
+
+def test_plot_function_evolution_no_data(capsys):
+    loc_data = []
+    evo_functions.plot_function_evolution(loc_data, "empty_function")
+    captured = capsys.readouterr()
+    assert "No data to plot." in captured.out
