@@ -220,7 +220,7 @@ def main():
             auth = Auth.Token(token)
             g = Github(auth=auth)
     except:
-        print("erro token invalido")
+        print("Erro! Token inválido")
         sys.exit()
 
 
@@ -229,13 +229,25 @@ def main():
     try:
         repo = g.get_repo(r)
     except:
-        print("erro repositorio invalido")
+        print("Erro! Repositório inválido")
 
-    commits = repo.get_commits()
+    total_commits = repo.get_commits()
 
-    #Função de filtro uau
-    commits = commits[:10]
+    #Função de filtro para determinar a quantidade de commits que serão analisados na função compare_function_with_previous_versions
+    if args.option == 0:
+        try:
+            start_date = input("Enter the start date (inclusive) of commits to be analyzed (format YYYY-MM-DD or ISO): ")
+            end_date = input("Enter the end date (inclusive) of commits to be analyzed (format YYYY-MM-DD or ISO): ")
+            
+            start_date = datetime.fromisoformat(start_date)
+            end_date = datetime.fromisoformat(end_date)
 
+            total_commits = repo.get_commits(since=start_date, until=end_date)
+        except:
+            print("Error: the input must be a string datetime (format YYYY-MM-DD or ISO).")
+            sys.exit(1)
+
+    commits = total_commits[:10] # Por padrão, a análise é feita com base nos últimos 10 commits
     python_files = filter_for_python_files(repo=repo, commits=commits)
 
     for commit in python_files:
