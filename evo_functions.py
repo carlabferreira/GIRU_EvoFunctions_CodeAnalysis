@@ -1,4 +1,4 @@
-from github import Github, Auth
+from github import Github, Auth, GithubException
 from jinja2 import Environment, FileSystemLoader
 import sys
 import ast
@@ -209,25 +209,17 @@ def generate_report(option, function_nodes, filtered_function, analyzed_file, fi
             f.write(html)  
 
 def github_setup(token):
-    try:
-        if not token:
-            g = Github()
-        else:
-            auth = Auth.Token(token)
-            g = Github(auth=auth)
+    if not token:
+        g = Github()
+    else:
+        auth = Auth.Token(token)
+        g = Github(auth=auth)
+        g.get_user().login
 
-            g.get_user().login
-    except Exception as e:
-        print("Erro! Token inválido: ", e)
-        sys.exit()
     return g
 
 def find_repo(github, repo):
-    try:
-        r = github.get_repo(repo)
-    except Exception as e:
-        print("Erro! Repositório inválido: ", e)
-        sys.exit()
+    r = github.get_repo(repo)
     return r
 
 
@@ -236,13 +228,22 @@ def main():
 
     token = args.token
     ############################## Tratar erro de colocar token invalido ##############################
-    g = github_setup(token)
+    try:
+        g = github_setup(token)
+    except GithubException as e:
+        print("Erro! Token inválido: ", e)
+        sys.exit()
+
     ############################## Tratar erro de colocar repositorio invalido ##############################
     
     # Inicialização das variáveis comuns a ambos os argumentos escolhidos
     commits = 0
     r = args.repo
-    repo = find_repo(g, r)
+    try:
+        repo = find_repo(g, r)
+    except GithubException as e:
+        print("Erro! Repositório inválido: ", e)
+        sys.exit()
 
     opt = Option(args.option)
 
