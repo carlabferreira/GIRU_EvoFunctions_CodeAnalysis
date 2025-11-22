@@ -4,30 +4,17 @@ from evo_functions import find_repo
 from github import Github, Auth, GithubException
 import ast
 import os
-import pytest
 from types import SimpleNamespace
+import pytest
 
-def test_invalid_token(monkeypatch):
-    # Mocka a classe Github para simular erro ao validar token
-    class FakeGithub:
-        def __init__(self, *args, **kwargs):
-            pass
-        def get_user(self):
-            raise Exception("invalid token")
+def test_invalid_token():
+    with pytest.raises(GithubException):
+        github_setup("invalid_token")   
 
-    monkeypatch.setattr(evo_functions, "Github", FakeGithub)
-    with pytest.raises(SystemExit):
-        evo_functions.github_setup("invalid_token")
-
-def test_invalid_repo(monkeypatch):
-    # Simula um objeto Github cujo get_repo lança exceção
-    class FakeGithub:
-        def get_repo(self, repo_name):
-            raise Exception("repo not found")
-
-    fake_g = FakeGithub()
-    with pytest.raises(SystemExit):
-        evo_functions.find_repo(fake_g, "invalid/repo")
+def test_invalid_repo():
+    g = Github()
+    with pytest.raises(GithubException):
+        find_repo(g, "user/invalid_repo")
 
 def test_find_user_function_found():
     src = """
