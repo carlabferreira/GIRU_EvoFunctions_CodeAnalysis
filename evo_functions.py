@@ -208,31 +208,37 @@ def generate_report(option, function_nodes, filtered_function, analyzed_file, fi
         with open(file_name, "w", encoding="utf-8") as f:
             f.write(html)  
 
-def main():
-    args = setup()
-
-    token = args.token
-    ############################## Tratar erro de colocar token invalido ##############################
+def github_setup(token):
     try:
         if not token:
             g = Github()
         else:
             auth = Auth.Token(token)
             g = Github(auth=auth)
-    except:
-        print("Erro! Token inválido")
+
+            g.get_user().login
+    except Exception as e:
+        print("Erro! Token inválido: ", e)
         sys.exit()
+    return g
 
-
-    ############################## Tratar erro de colocar repositorio invalido ##############################
-    r = args.repo
+def find_repo(github, repo):
     try:
-        repo = g.get_repo(r)
-    except:
-        print("Erro! Repositório inválido")
+        r = github.get_repo(repo)
+    except Exception as e:
+        print("Erro! Repositório inválido: ", e)
+        sys.exit()
+    return r
 
-    total_commits = repo.get_commits()
 
+def main():
+    args = setup()
+
+    token = args.token
+    ############################## Tratar erro de colocar token invalido ##############################
+    g = github_setup(token)
+    ############################## Tratar erro de colocar repositorio invalido ##############################
+    
     #Função de filtro para determinar a quantidade de commits que serão analisados na função compare_function_with_previous_versions
     if args.option == 0:
         try:
@@ -242,10 +248,15 @@ def main():
             start_date = datetime.fromisoformat(start_date)
             end_date = datetime.fromisoformat(end_date)
 
-            total_commits = repo.get_commits(since=start_date, until=end_date)
         except:
             print("Error: the input must be a string datetime (format YYYY-MM-DD or ISO).")
             sys.exit(1)
+
+        r = args.repo
+        repo = find_repo(g, r)
+
+        total_commits = repo.get_commits(since=start_date, until=end_date)
+        
 
     commits = total_commits[:10] # Por padrão, a análise é feita com base nos últimos 10 commits
     python_files = filter_for_python_files(repo=repo, commits=commits)
@@ -253,7 +264,6 @@ def main():
     for commit in python_files:
         for file in commit:
             ast_tree = ast.parse(file[1])
-            # pp(ast_tree.__dict__)
 
     ############################## Tratar erro de colocar função/método inválido ##############################
     f = args.function
@@ -275,6 +285,7 @@ def main():
         print(f"Lines of code for function '{f}': {(filtered_function.end_lineno - filtered_function.lineno + 1):.2f} \n")
         print_distribution_loc_functions(function_nodes)
         chart_path = "loc_distribution.png"
+
     elif (opt == Option.SAME_FUNCTION_PREVIOUS_VERSIONS):
         function_sizes, function_nodes = compare_function_with_previous_versions(repo, args.file, f, commits)
         if not function_sizes:
