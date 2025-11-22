@@ -1,4 +1,7 @@
 import evo_functions
+from evo_functions import github_setup
+from evo_functions import find_repo
+from github import Github, Auth, GithubException
 import ast
 import os
 import pytest
