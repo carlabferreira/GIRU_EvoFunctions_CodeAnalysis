@@ -80,7 +80,8 @@ Onde cada parâmetro segue a lógica abaixo:
     | --report   | -w        | Generates a report file with given name      | Não                    |
     +------------+-----------+----------------------------------------------+------------------------+
 
-Caso a opção escolhida para a análise seja 0, isso significa que a ferramenta irá comparar a função passada como parâmetro com outras versões em commits anteriores, ao longo do tempo. Para isso, é necessário inserir as datas de início e fim do período de tempo analisado quando perguntado pelo programa. Já caso a opção seja 1, a ferramenta comparará a função escolhida com as outras no mesmo arquivo. Para isso, a ferramenta pergunta qual commit deve ser considerado.
+- Caso a opção escolhida para a análise seja 0, isso significa que a ferramenta irá comparar a função passada como parâmetro com outras versões em commits anteriores, ao longo do tempo. Para isso, é necessário inserir as datas de início e fim do período de tempo analisado quando perguntado pelo programa.
+- Caso a opção seja 1, a ferramenta comparará a função escolhida com as outras no mesmo arquivo. Para tal, a ferramenta pergunta ao usuário qual commit deve ser considerado.
 
 ## Como executar os testes localmente:
 Os testes podem ser executados através do comando abaixo:
