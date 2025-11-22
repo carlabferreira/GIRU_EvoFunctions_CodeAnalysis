@@ -35,11 +35,54 @@ Para o desenvolvimento do projeto utilizaremos as seguintes ferramentas:
 - PyGithub: Typed interactions with the GitHub API (https://github.com/PyGithub/PyGithub) - como forma de interação principal com a API do GitHub
      - Essa ferramenta permite o acesso ao código-fonte do projeto no GitHub, possibilitando a análise de repositórios, issues, commits, pull requests, etc.
  
-## Requirements
+## Requisitos para utilização da ferramenta
 - GitHub API
 
 ```pip install PyGithub```
 - Token (opcional)
 
 Criar Token em https://github.com/settings/tokens e "Generate new token (classic)"
+
+## Como instalar a ferramenta
+- Clonagem do repositório:
+ ```git clone https://github.com/carlabferreira/GIRU_EvoFunctions_CodeAnalysis.git```
+
+- Instalação das bibliotecas:
+```pip install pytest pygithub statistics argparse jinja2 matplotlib numpy```
+
+Ou alternativamente pelo arquivo requirements.txt
+```pip install -r requirements.txt```
+
+> Recomenda-se utilizar um ambiente virtual em Python para instalação das bibliotecas e execução do trabalho
+
+## Como executar
+Para execução, é necessário seguir a ordem esperada dos parâmetros na linha de comando:
+
+```python evo_functions.py [-h] [-t TOKEN] -r REPO -a FILE -f FUNCTION -o {0,1} [-l] [-w REPORT]```
+
+Onde cada parâmetro segue a lógica abaixo:
+
+    +------------+-----------+----------------------------------------------+------------------------+
+    | Parâmetro  | Curto     | Descrição                                    | Obrigatório            |
+    +------------+-----------+----------------------------------------------+------------------------+
+    | --token    | -t        | OAuth token from GitHub                      | Não                    |
+    +------------+-----------+----------------------------------------------+------------------------+
+    | --repo     | -r        | Repository to be analyzed                    | Sim                    |
+    +------------+-----------+----------------------------------------------+------------------------+
+    | --file     | -a        | File in the given repository                 | Sim                    |
+    +------------+-----------+----------------------------------------------+------------------------+
+    | --function | -f        | Function to be analyzed                      | Sim                    |
+    +------------+-----------+----------------------------------------------+------------------------+
+    | --option   | -o        | Analysis option (0 ou 1)                     | Sim                    |
+    +------------+-----------+----------------------------------------------+------------------------+
+    | --limits   | -l        | Display remaining API request limits         | Não                    |
+    +------------+-----------+----------------------------------------------+------------------------+
+    | --report   | -w        | Generates a report file with given name      | Não                    |
+    +------------+-----------+----------------------------------------------+------------------------+
+
+Caso a opção escolhida para a análise seja 0, isso significa que a ferramenta irá comparar a função passada como parâmetro com outras versões em commits anteriores, ao longo do tempo. Para isso, é necessário inserir as datas de início e fim do período de tempo analisado quando perguntado pelo programa. Já caso a opção seja 1, a ferramenta comparará a função escolhida com as outras no mesmo arquivo. Para isso, a ferramenta pergunta qual commit deve ser considerado.
+
+## Como executar os testes localmente:
+Os testes podem ser executados através do comando abaixo:
+```pytest tests.py -v```
 
