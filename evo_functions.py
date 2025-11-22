@@ -239,8 +239,15 @@ def main():
     g = github_setup(token)
     ############################## Tratar erro de colocar repositorio invalido ##############################
     
+    # Inicialização das variáveis comuns a ambos os argumentos escolhidos
+    commits = 0
+    r = args.repo
+    repo = find_repo(g, r)
+
+    opt = Option(args.option)
+
     #Função de filtro para determinar a quantidade de commits que serão analisados na função compare_function_with_previous_versions
-    if args.option == 0:
+    if opt == Option.SAME_FUNCTION_PREVIOUS_VERSIONS:
         try:
             start_date = input("Enter the start date (inclusive) of commits to be analyzed (format YYYY-MM-DD or ISO): ")
             end_date = input("Enter the end date (inclusive) of commits to be analyzed (format YYYY-MM-DD or ISO): ")
@@ -252,13 +259,22 @@ def main():
             print("Error: the input must be a string datetime (format YYYY-MM-DD or ISO).")
             sys.exit(1)
 
-        r = args.repo
-        repo = find_repo(g, r)
-
         total_commits = repo.get_commits(since=start_date, until=end_date)
-        
+        commits = total_commits[:10] # Por padrão, a análise é feita com base nos últimos 10 commits
+    
+    elif opt == Option.OTHER_FUNCTIONS_SAME_VERSION:
+        try:
+            chosen_commit = input("Enter the SHA value of the commit to be analyzed. Type 000 to choose the newest commit: ")
+            if chosen_commit == '000':
+                commit_obj = repo.get_commits()[0]
+            else:
+                commit_obj = repo.get_commit(chosen_commit)
 
-    commits = total_commits[:10] # Por padrão, a análise é feita com base nos últimos 10 commits
+            commits = [commit_obj]
+        except:
+            print(f"Error: It wasn't possible to get the commit {chosen_commit}.")
+            sys.exit(1)
+
     python_files = filter_for_python_files(repo=repo, commits=commits)
 
     for commit in python_files:
@@ -267,7 +283,6 @@ def main():
 
     ############################## Tratar erro de colocar função/método inválido ##############################
     f = args.function
-    opt = Option(args.option)
 
     try:
         filtered_function = find_user_function(ast_tree=ast_tree, user_function=f)
