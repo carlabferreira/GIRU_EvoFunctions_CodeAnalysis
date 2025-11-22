@@ -53,7 +53,7 @@ Criar Token em https://github.com/settings/tokens e "Generate new token (classic
 Ou alternativamente pelo arquivo requirements.txt
 ```pip install -r requirements.txt```
 
-> Recomenda-se utilizar um ambiente virtual em Python para instalação das bibliotecas e execução do trabalho
+> Recomenda-se utilizar um ambiente virtual em Python para instalação das bibliotecas e execução da ferramenta
 
 ## Como executar
 Para execução, é necessário seguir a ordem esperada dos parâmetros na linha de comando:
@@ -85,4 +85,3 @@ Caso a opção escolhida para a análise seja 0, isso significa que a ferramenta
 ## Como executar os testes localmente:
 Os testes podem ser executados através do comando abaixo:
 ```pytest tests.py -v```
-
