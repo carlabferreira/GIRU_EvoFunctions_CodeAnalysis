@@ -249,11 +249,17 @@ def main():
     #Função de filtro para determinar a quantidade de commits que serão analisados na função compare_function_with_previous_versions
     if opt == Option.SAME_FUNCTION_PREVIOUS_VERSIONS:
         try:
-            start_date = input("Enter the start date (inclusive) of commits to be analyzed (format YYYY-MM-DD or ISO): ")
-            end_date = input("Enter the end date (inclusive) of commits to be analyzed (format YYYY-MM-DD or ISO): ")
-            
-            start_date = datetime.fromisoformat(start_date)
-            end_date = datetime.fromisoformat(end_date)
+            start_date = input("\nEnter the start date (inclusive) of commits to be analyzed (format YYYY-MM-DD or ISO):\nLeave blank for earliest date.\n")
+            if start_date == "":
+                start_date = datetime.min
+            else:
+                start_date = datetime.fromisoformat(start_date)
+
+            end_date = input("\nEnter the end date (inclusive) of commits to be analyzed (format YYYY-MM-DD or ISO):\nLeave blank for current date.\n")
+            if end_date == "":
+                end_date = datetime.now()
+            else:
+                end_date = datetime.fromisoformat(end_date)
 
         except:
             print("Error: the input must be a string datetime (format YYYY-MM-DD or ISO).")

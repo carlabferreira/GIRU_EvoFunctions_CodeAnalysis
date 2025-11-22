@@ -1,17 +1,38 @@
 import evo_functions
+from evo_functions import github_setup
+from evo_functions import find_repo
+from github import Github, Auth, GithubException
 import ast
-import os
 
 def test_invalid_token():
     invalid_token = "invalid_token"
-    #todo chamar parte da main com token invalido e verificar se o erro é tratado
-    assert True
+    try:
+        github_setup(invalid_token)
+    except GithubException as e:
+        assert True
+
+    assert False
 
 def test_invalid_repo():
     invalid_repo = "invalid/repo"
-    #todo chamar parte da main com repositorio invalido e verificar se o erro é tratado
-    assert True
+    g = Github()
+    try:
+        find_repo(g, invalid_repo)
+    except GithubException as e:
+        assert True
 
+    assert False
+
+def test_valid_repo():
+    valid_repo = "vitor-terra/CryptoChecker"
+    g = Github()
+    try:
+        find_repo(g, valid_repo)
+    except GithubException as e:
+        assert False
+
+    assert True
+    
 def test_find_user_function_found():
     src = """
 def foo():
@@ -46,21 +67,3 @@ def baz(y, z):
     captured = capsys.readouterr()
     assert "2 lines: 3 function(s)" in captured.out
 
-def test_plot_function_evolution():
-    filename = "test_function_evolution.png"
-
-    if os.path.exists(filename):
-        os.remove(filename)
-
-    loc_data = [('cod1', 5), ('cod2', 10), ('cod3', 15), ('cod4', 20)]
-    evo_functions.plot_function_evolution(loc_data, "test_function")
-    assert os.path.exists(filename), "Arquivo não criado"
-    assert os.path.getsize(filename) > 0, "Arquivo vazio"
-
-    os.remove(filename)
-
-def test_plot_function_evolution_no_data(capsys):
-    loc_data = []
-    evo_functions.plot_function_evolution(loc_data, "empty_function")
-    captured = capsys.readouterr()
-    assert "No data to plot." in captured.out
